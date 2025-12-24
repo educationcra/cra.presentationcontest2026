@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CRA Portal 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root { --primary: #1e40af; --text-main: #334155; --text-placeholder: #94a3b8; }
+    * { font-family: 'Noto Sans Thai', sans-serif !important; box-sizing: border-box; }
+    .font-bold { font-weight: 600 !important; }
+    body { background-color: #f8fafc; color: #1e293b; overflow-x: hidden; width: 100%; }
+    .glass { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); }
+    
+    .view-section { display: none; width: 100%; max-width: 48rem; margin: 0 auto; padding: 1rem; }
+    @media (min-width: 768px) { .view-section { padding: 1.5rem; } }
+    .view-section.active { display: block; animation: slideIn 0.4s ease-out; }
+    
+    .input-style { 
+      width: 100%; border-radius: 1rem; border: 1px solid #e2e8f0; padding: 0.75rem 1rem; 
+      padding-left: 2.75rem; font-size: 0.9rem !important; height: 3rem;
+      background: #fff; transition: all 0.2s; color: var(--text-main) !important;
+    }
+    select.input-style { color: var(--text-main) !important; appearance: none; cursor: pointer; padding-right: 2rem; }
+    .input-style:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1); }
+
+    .step-item { display: flex; flex-direction: column; align-items: center; position: relative; flex: 1; }
+    .step-circle { 
+      width: 2.2rem; height: 2.2rem; border-radius: 50%; background: #e2e8f0; 
+      display: flex; align-items: center; justify-content: center; 
+      font-weight: 600; color: #fff; z-index: 10; position: relative;
+    }
+    /* Success Checkmark Animation */
+.success-checkmark { width: 80px; height: 80px; margin: 0 auto; position: relative; }
+.check-icon { width: 80px; height: 80px; position: relative; border-radius: 50%; border: 4px solid #10b981; }
+.check-icon::after { content: ''; position: absolute; left: 28px; top: 40px; width: 30px; height: 50px; background: #fff; transform: rotate(45deg); transform-origin: left top; }
+.icon-line { height: 5px; background-color: #10b981; display: block; border-radius: 2px; position: absolute; z-index: 10; }
+.icon-line.line-tip { top: 46px; left: 14px; width: 25px; transform: rotate(45deg); animation: icon-line-tip 0.75s; }
+.icon-line.line-long { top: 38px; right: 8px; width: 47px; transform: rotate(-45deg); animation: icon-line-long 0.75s; }
+@keyframes icon-line-tip { 0% { width: 0; left: 1px; top: 19px; } 100% { width: 25px; left: 14px; top: 46px; } }
+@keyframes icon-line-long { 0% { width: 0; right: 46px; top: 54px; } 100% { width: 47px; right: 8px; top: 38px; } }
+    .step-item.active .step-circle { background: var(--primary); box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1); }
+    .step-line { position: absolute; top: 1.1rem; left: 50%; width: 100%; height: 2px; background: #e2e8f0; z-index: 1; }
+    .step-label { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; margin-top: 0.5rem; color: #94a3b8; text-align: center; }
+
+    .faculty-card { transition: all 0.3s ease; border: 1.5px solid #fff; cursor: pointer; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .faculty-card.selected { border-color: var(--primary); background-color: #eff6ff; }
+    .pin-input { width: 2.5rem; height: 3.2rem; text-align: center; font-size: 1.5rem; font-weight: 600; border: 2px solid #e2e8f0; border-radius: 0.75rem; color: var(--primary); }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-content { width: 100%; max-width: 24rem; max-height: 90vh; overflow: hidden; border-radius: 2rem; background: #fff; display: flex; flex-direction: column; }
+    
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
+    .dot-animate { animation: blink 1.4s infinite both; }
+    .dot-animate:nth-child(2) { animation-delay: 0.2s; }
+    .dot-animate:nth-child(3) { animation-delay: 0.4s; }
+
+    .tab-btn { color: #64748b; background: white; border: 1px solid #f1f5f9; text-align: left; padding: 1rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; transition: all 0.2s; }
+    .tab-btn.active { background: #1e40af; color: white; box-shadow: 0 4px 12px rgba(30,64,175,0.2); }
+    #content-area h4 { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; border-left: 4px solid #1e40af; padding-left: 1rem; }
+    .content-list-item { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; }
+    .content-list-item::before { content: "•"; color: #1e40af; font-weight: bold; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2">
+
+  <main class="w-full">
+    <div id="view-welcome" class="view-section active text-center">
+      <div class="glass rounded-[2.5rem] shadow-2xl p-8 md:p-12 border border-white space-y-10 relative overflow-hidden">
+        <div class="absolute top-4 right-4 md:top-6 md:right-6">
+          <button onclick="switchView('view-login')" class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-900 border border-blue-100 rounded-full font-bold text-xs md:text-sm hover:bg-blue-900 hover:text-white transition-all active:scale-95 shadow-sm">
+            <i data-lucide="log-in" class="w-4 h-4"></i> <span>Login</span>
+          </button>
+        </div>
+        <div class="w-20 h-20 bg-blue-900 text-white rounded-3xl flex items-center justify-center mx-auto shadow-xl rotate-3 mt-4 md:mt-0">
+          <i data-lucide="award" class="w-10 h-10"></i>
+        </div>
+        <div class="space-y-4">
+           <h1 class="text-3xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight pt-2">CRA Presentation <br><span class="text-blue-900">Contest 2026</span></h1>
+           <p class="text-slate-400 font-medium text-sm md:text-base px-4">การแข่งขันนำเสนอผลงานนักศึกษาราชวิทยาลัยจุฬาภรณ์</p>
+        </div>
+        <div class="max-w-md mx-auto p-4 bg-slate-50/80 rounded-2xl border border-slate-100 text-[11px] md:text-xs text-slate-600">
+           ภายใต้หัวข้อ <br><span class="font-bold text-blue-900 text-xl">CRA New Gen: Leadership in Health Professionals</span>
+        </div>
+        <button onclick="startApp()" class="px-10 py-4 bg-blue-900 text-white font-semibold rounded-full shadow-xl hover:bg-blue-700 transition-all flex items-center gap-3 mx-auto text-lg transform active:scale-95">
+          เริ่มลงทะเบียน <i data-lucide="arrow-right-circle" class="w-6 h-6"></i>
+        </button>
+        <button onclick="openDetailModal()" class="mt-4 text-blue-900 font-bold text-sm underline underline-offset-4 hover:text-blue-700 transition-all flex items-center gap-2 mx-auto">
+          <i data-lucide="info" class="w-4 h-4"></i> อ่านรายละเอียดการแข่งขัน
+        </button>
+      </div>
+    </div>
+<div class="fixed bottom-0 left-0 w-full bg-rose-600 z-[9998] px-5 py-2 shadow-[0_-2px_15px_rgba(225,29,72,0.2)]">
+  <div class="max-w-4xl mx-auto flex items-center justify-between">
+    
+    <div onclick="openSupportModal()" class="flex items-center gap-2.5 cursor-pointer group active:opacity-70 transition-opacity">
+      <div class="flex items-center justify-center">
+        <i data-lucide="settings" class="w-4 h-4 text-white animate-spin-slow"></i>
+      </div>
+      <span class="text-[12px] font-bold text-white tracking-tight">แจ้งพบปัญหาการใช้งาน</span>
+    </div>
+
+    <div class="hidden md:flex items-center gap-2 opacity-60">
+      <span class="text-[9px] font-bold text-white uppercase tracking-[0.2em]">CRA Support 2026</span>
+    </div>
+    
+  </div>
+</div>
+
+<style>
+  /* ปรับระยะห่างด้านล่างฟอร์มให้สมดุลกับแถบที่หนาขึ้น */
+  .view-section { padding-bottom: 4rem !important; }
+  
+  .animate-spin-slow {
+    animation: spin 10s linear infinite; /* ปรับให้หมุนช้าลงนิดนึงเพื่อให้ดูพรีเมียม */
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+</style>
+
+<div id="support-modal" class="modal-overlay" style="display:none; z-index: 10002;">
+  <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full mx-4 text-center shadow-2xl animate-fadeIn border-b-8 border-blue-900">
+    <div class="w-20 h-20 bg-blue-50 text-blue-900 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
+      <i data-lucide="wrench" class="w-10 h-10"></i>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800 mb-2">แจ้งปัญหาการใช้งาน</h3>
+    <p class="text-xs text-slate-400 uppercase tracking-[0.2em] mb-6 font-bold">System Support</p>
+    
+    <div class="bg-slate-50 rounded-2xl p-5 text-left space-y-4 border border-slate-100 mb-6">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm text-blue-900">
+          <i data-lucide="user"></i>
+        </div>
+        <div>
+          <p class="text-[10px] text-slate-400 font-bold uppercase">ผู้พัฒนาระบบ</p>
+          <p class="text-sm font-bold text-slate-700">นายชานนท์ จีระ</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-slate-600">
+        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm text-blue-900">
+          <i data-lucide="phone"></i>
+        </div>
+        <div>
+          <p class="text-[10px] text-slate-400 font-bold uppercase">เบอร์โทรศัพท์</p>
+          <a href="tel:0623732311" class="text-sm font-bold text-blue-900 hover:underline">062-3732311</a>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="closeSupportModal()" class="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg">
+      ปิดหน้าต่าง
+    </button>
+  </div>
+</div>
+<div id="success-update-modal" class="modal-overlay" style="display:none; z-index: 10003;">
+  <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full mx-4 text-center shadow-2xl animate-fadeIn border-t-8 border-emerald-500">
+    <div class="success-checkmark mb-6">
+      <div class="check-icon">
+        <span class="icon-line line-tip"></span>
+        <span class="icon-line line-long"></span>
+      </div>
+    </div>
+    <h3 class="text-2xl font-bold text-slate-800 mb-2">อัปเดตสำเร็จ!</h3>
+    <p class="text-sm text-slate-500 leading-relaxed mb-8">ระบบได้บันทึกข้อมูลและไฟล์ผลงาน<br>ของทีมคุณเรียบร้อยแล้ว</p>
+    <button onclick="closeSuccessUpdateModal()" class="w-full py-4 bg-emerald-500 text-white font-bold rounded-2xl hover:bg-emerald-600 transition-all active:scale-95 shadow-lg shadow-emerald-100">
+      ตกลง
+    </button>
+  </div>
+</div>
+    <div id="view-form" class="view-section">
+      <div class="flex justify-between mb-10 max-w-lg mx-auto">
+        <div id="st-1" class="step-item active"><div class="step-circle">1</div><div class="step-line"></div><span class="step-label">หลักสูตรที่เรียน</span></div>
+        <div id="st-2" class="step-item"><div class="step-circle">2</div><div class="step-line"></div><span class="step-label">ข้อมูลทีม</span></div>
+        <div id="st-3" class="step-item"><div class="step-circle">3</div><span class="step-label">ลงทะเบียนระบบ</span></div>
+      </div>
+      <div class="glass rounded-[2.5rem] shadow-2xl p-8 border border-white">
+        <form id="regForm" class="space-y-8">
+          <div id="step-1" class="hidden space-y-6 text-center">
+            <h3 class="font-bold text-slate-700 uppercase tracking-widest text-sm">เลือกคณะที่สังกัด</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div class="faculty-card p-5 rounded-2xl flex flex-col items-center gap-3 text-center" onclick="selectFac(this, 'คณะแพทยศาสตร์ศรีสวางควัฒน')"><i data-lucide="hospital" class="w-7 h-7 text-blue-800"></i><span class="text-[10px] font-semibold leading-tight text-wrap">คณะแพทยศาสตร์ศรีสวางควัฒน</span></div>
+              <div class="faculty-card p-5 rounded-2xl flex flex-col items-center gap-3 text-center" onclick="selectFac(this, 'คณะพยาบาลศาสตร์อัครราชกุมารี')"><i data-lucide="heart-pulse" class="w-7 h-7 text-rose-600"></i><span class="text-[10px] font-semibold leading-tight text-wrap">คณะพยาบาลศาสตร์อัครราชกุมารี</span></div>
+              <div class="faculty-card p-5 rounded-2xl flex flex-col items-center gap-3 text-center" onclick="selectFac(this, 'คณะเทคโนโลยีวิทยาศาสตร์สุขภาพ')"><i data-lucide="microscope" class="w-7 h-7 text-emerald-600"></i><span class="text-[10px] font-semibold leading-tight text-wrap">คณะเทคโนโลยีวิทยาศาสตร์สุขภาพ</span></div>
+              <div class="faculty-card p-5 rounded-2xl flex flex-col items-center gap-3 text-center" onclick="selectFac(this, 'คณะวิทยาศาสตร์')"><i data-lucide="dna" class="w-7 h-7 text-indigo-600"></i><span class="text-[10px] font-semibold leading-tight text-wrap">คณะวิทยาศาสตร์</span></div>
+              <div class="faculty-card p-5 rounded-2xl flex flex-col items-center gap-3 text-center" onclick="selectFac(this, 'โครงการจัดตั้งคณะวิศวกรรมศาสตร์')"><i data-lucide="cpu" class="w-7 h-7 text-orange-600"></i><span class="text-[10px] font-semibold leading-tight text-wrap">โครงการจัดตั้งคณะวิศวกรรมศาสตร์</span></div>
+              <div class="faculty-card p-5 rounded-2xl flex flex-col items-center gap-3 text-center" onclick="selectFac(this, 'โครงการจัดตั้งคณะนวัตกรรมอาหารและโภชนาการ')"><i data-lucide="utensils" class="w-7 h-7 text-amber-600"></i><span class="text-[10px] font-semibold leading-tight text-wrap">โครงการจัดตั้งคณะนวัตกรรมอาหารและโภชนาการ</span></div>
+            </div>
+            <input type="hidden" name="faculty" id="in-fac" required>
+            <div id="box-course" class="hidden space-y-2 text-left animate-fadeIn">
+              <button type="button" onclick="openModal()" class="w-full bg-slate-50 border rounded-2xl p-4 flex justify-between items-center text-sm font-semibold text-slate-400">
+                <span id="txt-course" class="truncate pr-4">คลิกเพื่อเลือกหลักสูตร...</span>
+                <i data-lucide="chevron-down" class="w-5 h-5 flex-shrink-0"></i>
+              </button>
+              <input type="hidden" name="course" id="in-course" required>
+            </div>
+            <button type="button" id="btn-next-1" onclick="goStep(2)" class="hidden w-full bg-blue-900 text-white font-semibold py-4 rounded-2xl shadow-lg">ถัดไป</button>
+          </div>
+
+          <div id="step-2" class="hidden space-y-6">
+            <div class="relative"><i data-lucide="shield-check" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5 z-10"></i><input type="text" name="teamName" required class="input-style font-bold text-blue-900" placeholder="ชื่อทีมแข่งขัน"></div>
+            <div id="members-list" class="space-y-4"></div>
+            <button type="button" id="btn-add-member" onclick="addMem()" class="w-full py-4 border-2 border-dashed border-slate-200 text-slate-400 rounded-2xl text-xs font-semibold hover:border-blue-900 transition-all"> + เพิ่มสมาชิกทีม </button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+              <div class="relative">
+  <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5 z-10"></i>
+  <input type="text" id="emailInput" name="email" required class="input-style" placeholder="อีเมลตัวแทนทีม" autocomplete="off">
+  <div id="emailSug" class="hidden absolute z-50 w-full mt-1 bg-white border rounded-xl shadow-xl overflow-hidden text-[10px]"></div>
+</div>
+              <div class="relative"><i data-lucide="phone" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5 z-10"></i><input type="tel" id="tel" name="phone" required maxlength="12" class="input-style font-mono" placeholder="เบอร์โทรตัวแทน"></div>
+            </div>
+            <div class="flex gap-3"><button type="button" onclick="goStep(1)" class="w-1/3 bg-slate-100 font-semibold py-4 rounded-2xl">กลับ</button><button type="button" onclick="goStep(3)" class="w-2/3 bg-blue-900 text-white font-semibold py-4 rounded-2xl shadow-md">ถัดไป</button></div>
+          </div>
+
+          <div id="step-3" class="hidden space-y-6 max-w-sm mx-auto text-center">
+            <div class="relative"><i data-lucide="user-circle" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5 z-10"></i><input type="text" name="username" required class="input-style font-semibold text-center text-blue-900" placeholder="Username"></div>
+            <div class="p-6 bg-slate-50 rounded-[2rem] space-y-4 border shadow-inner">
+              <div class="flex gap-2 p-1.5 bg-white rounded-xl border">
+                <button type="button" id="use-phone-btn" onclick="setPassType('phone')" class="flex-1 py-2 bg-blue-900 text-white rounded-lg text-[10px] font-bold shadow-md">ใช้เบอร์โทร</button>
+                <button type="button" id="use-custom-btn" onclick="setPassType('custom')" class="flex-1 py-2 text-slate-400 rounded-lg text-[10px] font-bold">กำหนด PIN</button>
+              </div>
+              <div id="custom-pass-area" class="hidden animate-fadeIn">
+                <p class="text-[10px] font-bold text-slate-400 mb-3 uppercase">ระบุ PIN 6 หลัก</p>
+                <div class="flex justify-center gap-2" id="reg-pin-container">
+                  <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12">
+                  <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12">
+                  <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12">
+                  <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12">
+                  <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12">
+                  <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12">
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-3"><button type="button" onclick="goStep(2)" class="w-1/3 bg-slate-100 font-semibold py-4 rounded-2xl">กลับ</button><button type="submit" id="btn-final" class="w-2/3 bg-blue-900 text-white font-semibold py-4 rounded-2xl shadow-xl transform active:scale-95">ยืนยันสมัคร</button></div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="view-dashboard" class="view-section">
+      <div class="glass rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 shadow-2xl border border-white space-y-10 relative overflow-hidden">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-slate-100">
+          <div>
+            <h2 class="text-3xl md:text-4xl font-bold text-blue-900 uppercase" id="db-teamName">TEAM NAME</h2>
+            <p class="text-[10px] md:text-xs text-slate-400 font-bold mt-1 uppercase" id="db-facCourse">Faculty / Course</p>
+          </div>
+          <button onclick="resetHard()" class="flex items-center gap-2 bg-rose-50 text-rose-500 px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-rose-500 hover:text-white transition-all active:scale-95 shadow-sm">
+            <i data-lucide="power" class="w-4 h-4"></i> Logout
+          </button>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 text-sm font-medium">
+          <div class="space-y-4"><p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-blue-900"></i> Members</p><div id="db-members" class="grid grid-cols-1 gap-3"></div></div>
+          <div class="bg-slate-50 p-6 md:p-8 rounded-[2.5rem] space-y-6 border border-slate-100 shadow-inner">
+            <h3 class="font-bold text-slate-800 flex items-center gap-3 uppercase text-xs md:text-sm"><i data-lucide="file-up" class="text-blue-900"></i> Submission</h3>
+            <div id="file-managed-area" class="space-y-5">
+  <div id="file-present" class="hidden p-4 bg-blue-50 text-blue-900 rounded-2xl border-2 border-blue-100 flex flex-col md:flex-row items-center justify-between gap-3 animate-fadeIn">
+    <div class="flex items-center gap-2 font-bold text-xs"><i data-lucide="file-check" class="w-4 h-4"></i> ไฟล์บันทึกแล้ว</div>
+    <div class="flex gap-2 w-full md:w-auto">
+      <a id="db-file-link" target="_blank" class="flex-1 md:flex-none text-center px-4 py-2 bg-blue-900 text-white rounded-lg text-[9px] font-bold uppercase shadow-sm">View</a>
+      <button onclick="toggleFileEdit(true)" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-rose-500 text-white rounded-lg text-[9px] font-bold shadow-sm"><i data-lucide="x" class="w-3 h-3"></i> แก้ไข</button>
+    </div>
+  </div>
+  <div id="file-new" class="animate-fadeIn">
+     <div class="relative"><i data-lucide="folder-search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4 z-10"></i><input type="file" id="f-l" class="input-style text-[10px] pt-2 bg-white" style="padding-top: 0.65rem;"></div>
+  </div>
+
+  <div id="video-present" class="hidden p-4 bg-blue-50 text-blue-900 rounded-2xl border-2 border-blue-100 flex flex-col md:flex-row items-center justify-between gap-3 animate-fadeIn">
+    <div class="flex items-center gap-2 font-bold text-xs"><i data-lucide="youtube" class="w-4 h-4"></i> ลิงก์บันทึกแล้ว</div>
+    <div class="flex gap-2 w-full md:w-auto">
+      <a id="db-video-link" target="_blank" class="flex-1 md:flex-none text-center px-4 py-2 bg-blue-900 text-white rounded-lg text-[9px] font-bold uppercase shadow-sm">View</a>
+      <button onclick="toggleVideoEdit(true)" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-rose-500 text-white rounded-lg text-[9px] font-bold shadow-sm"><i data-lucide="x" class="w-3 h-3"></i> แก้ไข</button>
+    </div>
+  </div>
+  <div id="video-new" class="relative animate-fadeIn">
+    <i data-lucide="youtube" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4 z-10"></i>
+    <input type="url" id="f-m" class="input-style text-[11px]" placeholder="Link Video (YouTube/Drive)">
+  </div>
+
+  <button id="btn-save" onclick="doSubmitFile()" class="w-full py-4 md:py-5 bg-blue-900 text-white font-bold rounded-2xl shadow-xl transform active:scale-95 transition-all">บันทึกข้อมูลและส่ง</button>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-success" class="view-section text-center">
+      <div class="glass rounded-[3rem] p-8 md:p-12 shadow-2xl border-t-8 border-emerald-500 max-w-2xl mx-auto space-y-8 animate-fadeIn">
+        <i data-lucide="check-circle" class="w-16 h-16 text-emerald-500 mx-auto"></i>
+        <h2 class="text-3xl font-bold text-slate-800 tracking-tight">ลงทะเบียนสำเร็จ!</h2>
+        <div class="text-left bg-slate-50 p-6 rounded-[2rem] space-y-4 border border-slate-100 shadow-inner">
+            <p id="res-team" class="font-bold text-blue-900 text-2xl uppercase"></p>
+            <p id="res-fac" class="text-xs font-bold text-slate-500 uppercase tracking-widest"></p>
+            <ul id="res-mems" class="space-y-1.5 text-sm font-medium text-slate-700 border-t pt-4"></ul>
+        </div>
+        <div class="bg-white p-6 md:p-8 rounded-[2.5rem] text-left border border-slate-200 shadow-xl space-y-6">
+  <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+    <div class="w-12 h-12 bg-blue-900 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/20">
+      <i data-lucide="trophy" class="w-6 h-6"></i>
+    </div>
+    <div>
+      <h3 class="text-xl font-bold text-slate-800 tracking-tight">รางวัลของการแข่งขัน</h3>
+      <p class="text-[10px] uppercase tracking-[0.2em] text-blue-900 font-bold opacity-70">Prizes & Recognition</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-3 text-sm">
+    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-all hover:border-blue-900/30">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🥇</span>
+        <span class="font-bold text-slate-700">รางวัลชนะเลิศ</span>
+      </div>
+      <span class="text-lg font-bold text-blue-900">10,000 <span class="text-xs font-medium text-slate-500">บาท</span></span>
+    </div>
+    
+    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🥈</span>
+        <span class="font-bold text-slate-700">รองชนะเลิศอันดับ 1</span>
+      </div>
+      <span class="text-lg font-bold text-blue-900">8,000 <span class="text-xs font-medium text-slate-500">บาท</span></span>
+    </div>
+
+    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🥉</span>
+        <span class="font-bold text-slate-700">รองชนะเลิศอันดับ 2</span>
+      </div>
+      <span class="text-lg font-bold text-blue-900">6,000 <span class="text-xs font-medium text-slate-500">บาท</span></span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100 text-blue-900">
+        <i data-lucide="award" class="w-5 h-5"></i>
+        <span class="font-bold text-xs">รางวัลชมเชย (2 รางวัล)</span>
+      </div>
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-rose-50 border border-rose-100 text-rose-900">
+        <i data-lucide="thumbs-up" class="w-5 h-5"></i>
+        <span class="font-bold text-xs">รางวัล Popular vote</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+    <div class="flex gap-3">
+      <i data-lucide="info" class="w-5 h-5 text-blue-900 shrink-0"></i>
+      <div class="text-[11px] md:text-xs text-slate-600 leading-relaxed">
+        <p class="font-bold text-slate-800 mb-1">หมายเหตุการรับรางวัล</p>
+        <p>ทุกทีมรับเกียรติบัตรพร้อมเงินรางวัลบนเวที ในงาน <span class="text-blue-900 font-bold">CRA Job Fair & Education 2026</span></p>
+        <div class="mt-3 space-y-2">
+          <div class="flex items-center gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+            <p>Convention Hall ชั้น 6 อาคารกรมพระศรีสวางควัฒน</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+            <p>วันพฤหัสบดีที่ 12 กุมภาพันธ์ 2569 (10.00 – 11.30 น.)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-blue-900 p-4 rounded-2xl flex items-center justify-between shadow-lg shadow-blue-900/10">
+    <div class="flex items-center gap-3 text-white">
+      <i data-lucide="calendar-days" class="w-5 h-5 text-blue-300"></i>
+      <span class="text-xs md:text-sm font-bold">กำหนดการส่งผลงาน</span>
+    </div>
+    <span class="bg-white/20 px-3 py-1 rounded-full text-white text-[10px] md:text-xs font-bold border border-white/10">
+      ภายใน 27 ม.ค. 2569
+    </span>
+  </div>
+</div>
+        <button onclick="resetHard()" class="w-full py-4 bg-slate-900 text-white font-semibold rounded-[2rem] shadow-lg transition-all active:scale-95"><i data-lucide="home" class="w-5 h-5 inline mr-1"></i> กลับหน้าแรก</button>
+      </div>
+    </div>
+
+<div id="view-login" class="view-section max-w-sm mx-auto">
+      <div class="glass rounded-[3rem] shadow-2xl p-8 md:p-10 border-t-8 border-blue-900 space-y-8 animate-fadeIn text-center">
+        <h2 class="text-2xl font-bold text-slate-800 uppercase tracking-tighter">เข้าสู่ระบบ</h2>
+        
+        <div class="flex gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
+          <button type="button" id="tab-pin" onclick="toggleLoginMode('pin')" class="flex-1 py-2.5 bg-blue-900 text-white rounded-xl text-xs font-bold shadow-md transition-all">
+            ใช้ PIN 6 หลัก
+          </button>
+          <button type="button" id="tab-phone" onclick="toggleLoginMode('phone')" class="flex-1 py-2.5 text-slate-400 rounded-xl text-xs font-bold transition-all">
+            ใช้เบอร์โทรศัพท์
+          </button>
+        </div>
+
+        <div class="relative">
+          <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5"></i>
+          <input type="text" id="log-user" class="input-style font-bold text-center" placeholder="Username">
+        </div>
+
+        <div id="login-pin-area" class="space-y-4 animate-fadeIn">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block text-center">ระบุ PIN 6 หลัก</label>
+          <div class="flex justify-center gap-2" id="login-pin-container">
+            <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12 text-center text-xl font-bold border-2 rounded-lg focus:border-blue-900 outline-none transition-all">
+            <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12 text-center text-xl font-bold border-2 rounded-lg focus:border-blue-900 outline-none transition-all">
+            <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12 text-center text-xl font-bold border-2 rounded-lg focus:border-blue-900 outline-none transition-all">
+            <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12 text-center text-xl font-bold border-2 rounded-lg focus:border-blue-900 outline-none transition-all">
+            <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12 text-center text-xl font-bold border-2 rounded-lg focus:border-blue-900 outline-none transition-all">
+            <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-10 h-12 text-center text-xl font-bold border-2 rounded-lg focus:border-blue-900 outline-none transition-all">
+          </div>
+        </div>
+
+        <div id="login-phone-area" class="hidden animate-fadeIn relative">
+          <i data-lucide="phone" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5 z-10"></i>
+          <input type="tel" id="log-phone" class="input-style text-center font-mono" placeholder="เบอร์โทรศัพท์ที่ใช้สมัคร">
+        </div>
+
+        <button onclick="executeLogin()" id="btn-login-exec" class="w-full py-4 bg-blue-900 text-white font-bold rounded-2xl active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2">
+          LOGIN <i data-lucide="arrow-right" class="w-5 h-5"></i>
+        </button>
+
+        <button onclick="resetHard()" class="text-slate-400 font-semibold text-xs w-full pt-4 underline">กลับหน้าแรก</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="detail-modal" class="modal-overlay">
+    <div class="bg-white w-full max-w-4xl h-[85vh] rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row relative mx-2">
+      <button onclick="closeDetailModal()" class="absolute top-4 right-4 z-50 bg-slate-100 p-2 rounded-full md:hidden"><i data-lucide="x" class="w-5 h-5 text-slate-500"></i></button>
+      <div class="w-full md:w-1/3 bg-slate-50 border-r border-slate-100 p-6 md:p-8 flex flex-col gap-2 overflow-y-auto">
+        <h3 class="font-bold text-blue-900 mb-4 text-lg">รายละเอียดการแข่งขัน</h3>
+        <button onclick="showContent(1)" id="tab-1" class="tab-btn active">1. วัตถุประสงค์</button>
+        <button onclick="showContent(2)" id="tab-2" class="tab-btn">2. คุณสมบัติผู้เข้าแข่งขัน</button>
+        <button onclick="showContent(3)" id="tab-3" class="tab-btn">3. ลักษณะกิจกรรม</button>
+        <button onclick="showContent(4)" id="tab-4" class="tab-btn">4. กำหนดการ/สถานที่</button>
+        <button onclick="showContent(5)" id="tab-5" class="tab-btn">5. รางวัลการแข่งขัน</button>
+        <button onclick="closeDetailModal()" class="hidden md:flex mt-auto items-center gap-2 text-slate-400 font-bold text-xs hover:text-rose-500 transition-all"><i data-lucide="log-out" class="w-4 h-4"></i> ปิดหน้าต่างนี้</button>
+      </div>
+      <div class="w-full md:w-2/3 p-8 md:p-12 overflow-y-auto bg-white text-slate-700">
+        <div id="content-area" class="animate-fadeIn"></div>
+      </div>
+    </div>
+  </div>
+<div id="error-modal" class="modal-overlay" style="display:none; z-index: 10001;">
+  <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full mx-4 text-center shadow-2xl animate-fadeIn border-t-8 border-rose-500">
+    <div class="w-20 h-20 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="alert-circle" class="w-10 h-10"></i>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800 mb-2">ข้อมูลไม่ครบถ้วน</h3>
+    <p id="error-message" class="text-sm text-slate-500 leading-relaxed mb-6">กรุณากรอกข้อมูลในช่องที่ระบุให้ครบถ้วนก่อนดำเนินการต่อ</p>
+    <button onclick="closeErrorModal()" class="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg">
+      ตกลง
+    </button>
+  </div>
+</div>
+  <div id="modal" class="modal-overlay" onclick="closeModal()">
+    <div class="modal-content animate-fadeIn" onclick="event.stopPropagation()">
+      <div class="p-6 border-b flex justify-between items-center bg-slate-50 font-bold text-lg text-blue-900">เลือกหลักสูตร <i data-lucide="x" class="cursor-pointer text-slate-400 hover:text-rose-500" onclick="closeModal()"></i></div>
+      <div id="modal-list" class="p-4 space-y-3 overflow-y-auto flex-1"></div>
+    </div>
+  </div>
+
+  <script>
+// --- ส่วนปรับปรุงเพื่อรันบน GitHub ---
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyJ8_HymX0T-S9eS1zO2FYOjnsiny4vflsJmmLrkWnPO_xc4eNrkradsSBJF0Doiikj/exec"; // <--- วาง URL ที่อาจารย์ Deploy จาก Apps Script ตรงนี้
+
+async function callGAS(payload) {
+    const response = await fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+    });
+    return await response.json();
+}
+// --------------------------------
+
+var ua = navigator.userAgent || navigator.vendor || window.opera;
+var isFacebook = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Line") > -1);
+if (isFacebook) {
+    alert("📌 เพื่อการใช้งานที่สมบูรณ์ (การดึงข้อมูลบัญชี Google)\nกรุณากดปุ่ม ••• ด้านบนขวา และเลือก 'เปิดในเบราว์เซอร์' ครับ");
+}
+    lucide.createIcons();
+    
+    // Data Sources
+    const courses = { 
+      "คณะแพทยศาสตร์ศรีสวางควัฒน": [{ icon: "stethoscope", text: "หลักสูตรแพทยศาสตรบัณฑิต" }, { icon: "bar-chart-2", text: "วท.บ. สาขาวิชาวิทยาศาสตร์ข้อมูลสุขภาพ" }], 
+      "คณะพยาบาลศาสตร์อัครราชกุมารี": [{ icon: "heart-pulse", text: "พยาบาลศาสตรบัณฑิต" }, { icon: "globe", text: "พยาบาลศาสตรบัณฑิต (หลักสูตรนานาชาติ)" }, { icon: "graduation-cap", text: "พยาบาลศาสตรบัณฑิต (รับผู้สำเร็จปริญญาตรีสาขาอื่น)" }], 
+      "คณะเทคโนโลยีวิทยาศาสตร์สุขภาพ": [{ icon: "radio", text: "วท.บ. สาขาวิชารังสีเทคนิค" }, { icon: "activity", text: "วท.บ. วิทยาศาสตร์การเคลื่อนไหวและสุขภาพ" }, { icon: "ambulance", text: "วท.บ. สาขาวิชาฉุกเฉินการแพทย์" }], 
+      "คณะวิทยาศาสตร์": [{ icon: "dna", text: "วท.บ. สาขาวิชานวัตกรรมวิทยาศาสตร์การแพทย์" }], 
+      "โครงการจัดตั้งคณะวิศวกรรมศาสตร์": [{ icon: "cpu", text: "วศ.บ. สาขาวิชาวิศวกรรมชีวการแพทย์" }], 
+      "โครงการจัดตั้งคณะนวัตกรรมอาหารและโภชนาการ": [{ icon: "apple", text: "วท.บ. สาขาวิชาเทคโนโลยีอาหารทางการแพทย์และสุขภาพ" }] 
+    };
+
+       const contestDetails = {
+1: { 
+    title: "วัตถุประสงค์ของการแข่งขัน", 
+    body: `
+    <div class="space-y-4">
+        <div class="p-5 bg-blue-50/50 rounded-2xl border border-blue-100 flex gap-4 transition-all hover:shadow-md">
+            <div class="w-12 h-12 bg-blue-900 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg">
+                <i data-lucide="megaphone" class="w-6 h-6"></i>
+            </div>
+            <div class="space-y-1">
+                <h5 class="font-bold text-blue-900 text-sm">1. ประชาสัมพันธ์ทักษะและความก้าวหน้า</h5>
+                <p class="text-xs text-slate-600 leading-relaxed">สร้างความรู้ความเข้าใจเกี่ยวกับเนื้อหาการเรียน จุดเด่น และศักยภาพของแต่ละหลักสูตรในราชวิทยาลัยจุฬาภรณ์ แก่ผู้ใช้บัณฑิตและสื่อมวลชน</p>
+            </div>
+        </div>
+
+        <div class="p-5 bg-emerald-50/50 rounded-2xl border border-emerald-100 flex gap-4 transition-all hover:shadow-md">
+            <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg">
+                <i data-lucide="trending-up" class="w-6 h-6"></i>
+            </div>
+            <div class="space-y-1">
+                <h5 class="font-bold text-emerald-900 text-sm">2. แสดงศักยภาพของนักศึกษา</h5>
+                <p class="text-xs text-slate-600 leading-relaxed">นำเสนอความสามารถ ทักษะเฉพาะทาง และความพร้อมของนักศึกษาในการตอบสนองต่อความต้องการของตลาดแรงงานในปัจจุบัน</p>
+            </div>
+        </div>
+
+        <div class="p-5 bg-amber-50/50 rounded-2xl border border-amber-100 flex gap-4 transition-all hover:shadow-md">
+            <div class="w-12 h-12 bg-amber-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg">
+                <i data-lucide="users-2" class="w-6 h-6"></i>
+            </div>
+            <div class="space-y-1">
+                <h5 class="font-bold text-amber-900 text-sm">3. สร้างเครือข่ายความร่วมมือ</h5>
+                <p class="text-xs text-slate-600 leading-relaxed">เปิดโอกาสให้องค์กรภายนอกได้รู้จักหลักสูตร และพิจารณาความร่วมมือในด้านการฝึกงานหรือการจ้างงานในอนาคต</p>
+            </div>
+        </div>
+    </div>
+    `},
+
+2: { 
+    title: "คุณสมบัติผู้เข้าแข่งขัน", 
+    body: `
+    <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                <div class="w-10 h-10 bg-blue-100 text-blue-900 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase">ระดับการศึกษา</p>
+                <p class="text-xs font-bold text-slate-800">นักศึกษา ป.ตรี ทุกชั้นปี</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                <div class="w-10 h-10 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase">รูปแบบทีม</p>
+                <p class="text-xs font-bold text-slate-800">ไม่เกิน 3 คน/ทีม</p>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase">เงื่อนไขหลักสูตร</p>
+                <p class="text-xs font-bold text-slate-800">หลักสูตรละ 1 ทีม</p>
+            </div>
+        </div>
+
+        <div class="bg-blue-900/5 p-4 rounded-2xl border border-blue-900/10">
+            <div class="flex items-center gap-2 mb-3">
+                <i data-lucide="list-checks" class="w-5 h-5 text-blue-900"></i>
+                <h5 class="font-bold text-blue-900 text-sm">รายชื่อ 11 หลักสูตรที่มีสิทธิ์เข้าแข่งขัน</h5>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">1</span>
+                    <span>แพทยศาสตรบัณฑิต</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">2</span>
+                    <span>วท.บ. สาขาวิชาวิทยาศาสตร์ข้อมูลสุขภาพ</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">3</span>
+                    <span>พยาบาลศาสตรบัณฑิต</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">4</span>
+                    <span>พยาบาลศาสตรบัณฑิต (หลักสูตรนานาชาติ)</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">5</span>
+                    <span>พยาบาลศาสตรบัณฑิต (รับผู้สำเร็จ ป.ตรี สาขาอื่น)</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">6</span>
+                    <span>วท.บ. สาขาวิชารังสีเทคนิค</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">7</span>
+                    <span>วท.บ. วิทยาศาสตร์การเคลื่อนไหวและสุขภาพ</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">8</span>
+                    <span>วท.บ. สาขาวิชาฉุกเฉินการแพทย์</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">9</span>
+                    <span>วท.บ. สาขาวิชานวัตกรรมวิทยาศาสตร์การแพทย์</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">10</span>
+                    <span>วท.บ. สาขาวิชาเทคโนโลยีอาหารทางการแพทย์และสุขภาพ</span>
+                </div>
+                <div class="flex items-start gap-2 text-[11px] text-slate-700">
+                    <span class="w-5 h-5 bg-white rounded-md border flex items-center justify-center shrink-0 font-bold text-blue-900">11</span>
+                    <span>วศ.บ. สาขาวิชาวิศวกรรมชีวการแพทย์</span>
+                </div>
+            </div>
+        </div>
+        
+        <p class="text-[10px] text-rose-500 font-bold italic">* สมาชิกในทีมต้องสังกัดหลักสูตรเดียวกันเท่านั้น สามารถคละชั้นปีได้</p>
+    </div>
+    `
+},
+
+   3: { 
+    title: "ลักษณะกิจกรรมการแข่งขันนำเสนอคณะ/หลักสูตร", 
+    body: `<ul>
+        <li class="content-list-item">การแข่งขันในรูปแบบทีม ไม่เกิน 3 คน โดยสมาชิกในทีมต้องเป็นนักศึกษาหลักสูตรเดียวกันเท่านั้น ซึ่งแต่ละหลักสูตรต้องมีทีมเข้าร่วมแข่งขันจำนวน 1 ทีม</li>
+        <li class="content-list-item">ทุกทีมต้องมีสมาชิกที่มีบทบาทในแต่ละส่วนของการนำเสนอ โดยนำเสนอเนื้อหาตามหัวข้อที่กำหนด โดยแสดงเนื้อหาเกี่ยวกับหลักสูตรของตนเอง จุดเด่น การนำทักษะความรู้ความสามารถในสายวิชาชีพมาประยุกต์ใช้ พัฒนาด้านวิทยาศาสตร์สุขภาพ และเพิ่มโอกาสความก้าวหน้าในอนาคต</li>
+        <li class="content-list-item">เวลาในการนำเสนอ ไม่เกิน 10 นาทีต่อทีม (ไม่รวมเวลา Q & A ถาม-ตอบ จากคณะกรรมการ ไม่เกิน 5 นาทีต่อทีม)</li>
+    </ul>` 
+},
+
+    4: { title: "กำหนดการ", body: `<div class="bg-white p-6 md:p-8 rounded-[2.5rem] text-left border border-slate-200 shadow-xl space-y-8">
+  
+  <div class="relative space-y-6">
+    <div class="absolute left-[19px] top-2 bottom-2 w-0.5 bg-slate-100"></div>
+
+    <div class="relative flex gap-4">
+      <div class="z-10 w-10 h-10 rounded-full bg-blue-50 border-4 border-white shadow-sm flex items-center justify-center shrink-0">
+        <i data-lucide="user-plus" class="w-4 h-4 text-blue-900"></i>
+      </div>
+      <div class="pt-1">
+        <p class="text-[10px] font-bold text-blue-900 uppercase tracking-wider">22 มกราคม 2569</p>
+        <h4 class="text-sm font-bold text-slate-800">วันสุดท้ายในการรับสมัครทีมแข่งขัน</h4>
+      </div>
+    </div>
+
+    <div class="relative flex gap-4">
+      <div class="z-10 w-10 h-10 rounded-full bg-blue-50 border-4 border-white shadow-sm flex items-center justify-center shrink-0">
+        <i data-lucide="megaphone" class="w-4 h-4 text-blue-900"></i>
+      </div>
+      <div class="pt-1">
+        <p class="text-[10px] font-bold text-blue-900 uppercase tracking-wider">26 มกราคม 2569</p>
+        <h4 class="text-sm font-bold text-slate-800">ประกาศรายชื่อผู้มีสิทธิ์เข้าแข่งขัน</h4>
+      </div>
+    </div>
+
+    <div class="relative flex gap-4">
+      <div class="z-10 w-10 h-10 rounded-full bg-amber-50 border-4 border-white shadow-sm flex items-center justify-center shrink-0">
+        <i data-lucide="file-up" class="w-4 h-4 text-amber-600"></i>
+      </div>
+      <div class="pt-1">
+        <p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">27 มกราคม 2569</p>
+        <h4 class="text-sm font-bold text-slate-800">ส่งไฟล์งานวันสุดท้าย</h4>
+      </div>
+    </div>
+
+    <div class="relative flex gap-4">
+      <div class="z-10 w-10 h-10 rounded-full bg-blue-50 border-4 border-white shadow-sm flex items-center justify-center shrink-0">
+        <i data-lucide="settings" class="w-4 h-4 text-blue-900"></i>
+      </div>
+      <div class="pt-1">
+        <p class="text-[10px] font-bold text-blue-900 uppercase tracking-wider">29 มกราคม 2569</p>
+        <h4 class="text-sm font-bold text-slate-800">ซักซ้อม เตรียมสถานที่และทดสอบระบบ</h4>
+      </div>
+    </div>
+
+    <div class="relative flex gap-4">
+      <div class="z-10 w-10 h-10 rounded-full bg-blue-900 border-4 border-white shadow-md flex items-center justify-center shrink-0">
+        <i data-lucide="swords" class="w-4 h-4 text-white"></i>
+      </div>
+      <div class="pt-1 p-4 rounded-2xl bg-blue-50 border border-blue-100 flex-1">
+        <p class="text-[10px] font-bold text-blue-900 uppercase tracking-wider">30 มกราคม 2569</p>
+        <h4 class="text-sm font-bold text-slate-800">วันแข่งขันคัดเลือกผู้ชนะ</h4>
+        <p class="text-xs text-blue-800 mt-1 flex items-center gap-1">
+          <i data-lucide="map-pin" class="w-3 h-3"></i> สถานที่: ราชวิทยาลัยจุฬาภรณ์
+        </p>
+      </div>
+    </div>
+
+    <div class="relative flex gap-4">
+      <div class="z-10 w-10 h-10 rounded-full bg-emerald-500 border-4 border-white shadow-md flex items-center justify-center shrink-0">
+        <i data-lucide="award" class="w-4 h-4 text-white"></i>
+      </div>
+      <div class="pt-1 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex-1">
+        <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">12 กุมภาพันธ์ 2569</p>
+        <h4 class="text-sm font-bold text-slate-800">นำเสนอผลงานบนเวทีและรับรางวัล</h4>
+        <div class="mt-2 space-y-1 text-[11px] text-emerald-900/80">
+          <p class="font-bold">งาน CRA Job Fair & Education 2026</p>
+          <p class="flex items-start gap-1">
+            <i data-lucide="map-pin" class="w-3 h-3 mt-0.5"></i>
+            <span>ห้อง Convention Hall ชั้น 6 อาคารกรมพระศรีสวางควัฒน โรงพยาบาลจุฬาภรณ์</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>` },
+    5: { title: "รางวัลการแข่งขัน", body: `<div class="bg-white p-6 md:p-8 rounded-[2.5rem] text-left border border-slate-200 shadow-xl space-y-6">
+  <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+    <div class="w-12 h-12 bg-blue-900 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/20">
+      <i data-lucide="trophy" class="w-6 h-6"></i>
+    </div>
+    <div>
+      <h3 class="text-xl font-bold text-slate-800 tracking-tight">รางวัลของการแข่งขัน</h3>
+      <p class="text-[10px] uppercase tracking-[0.2em] text-blue-900 font-bold opacity-70">Prizes & Recognition</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-3 text-sm">
+    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-all hover:border-blue-900/30">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🥇</span>
+        <span class="font-bold text-slate-700">รางวัลชนะเลิศ</span>
+      </div>
+      <span class="text-lg font-bold text-blue-900">10,000 <span class="text-xs font-medium text-slate-500">บาท</span></span>
+    </div>
+    
+    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🥈</span>
+        <span class="font-bold text-slate-700">รองชนะเลิศอันดับ 1</span>
+      </div>
+      <span class="text-lg font-bold text-blue-900">8,000 <span class="text-xs font-medium text-slate-500">บาท</span></span>
+    </div>
+
+    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🥉</span>
+        <span class="font-bold text-slate-700">รองชนะเลิศอันดับ 2</span>
+      </div>
+      <span class="text-lg font-bold text-blue-900">6,000 <span class="text-xs font-medium text-slate-500">บาท</span></span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100 text-blue-900">
+        <i data-lucide="award" class="w-5 h-5"></i>
+        <span class="font-bold text-xs">รางวัลชมเชย (2 รางวัล)</span>
+      </div>
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-rose-50 border border-rose-100 text-rose-900">
+        <i data-lucide="thumbs-up" class="w-5 h-5"></i>
+        <span class="font-bold text-xs">รางวัล Popular vote</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+    <div class="flex gap-3">
+      <i data-lucide="info" class="w-5 h-5 text-blue-900 shrink-0"></i>
+      <div class="text-[11px] md:text-xs text-slate-600 leading-relaxed">
+        <p class="font-bold text-slate-800 mb-1">หมายเหตุการรับรางวัล</p>
+        <p>ทุกทีมรับเกียรติบัตรพร้อมเงินรางวัลบนเวที ในงาน <span class="text-blue-900 font-bold">CRA Job Fair & Education 2026</span></p>
+        <div class="mt-3 space-y-2">
+          <div class="flex items-center gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+            <p>Convention Hall ชั้น 6 อาคารกรมพระศรีสวางควัฒน</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+            <p>วันพฤหัสบดีที่ 12 กุมภาพันธ์ 2569 (10.00 – 11.30 น.)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-blue-900 p-4 rounded-2xl flex items-center justify-between shadow-lg shadow-blue-900/10">
+    <div class="flex items-center gap-3 text-white">
+      <i data-lucide="calendar-days" class="w-5 h-5 text-blue-300"></i>
+      <span class="text-xs md:text-sm font-bold">กำหนดการส่งผลงาน</span>
+    </div>
+    <span class="bg-white/20 px-3 py-1 rounded-full text-white text-[10px] md:text-xs font-bold border border-white/10">
+      ภายใน 27 ม.ค. 2569
+    </span>
+  </div>
+</div>` }
+    };
+
+    let mCount = 0, globalRow = null, currentPassType = 'phone', clearCurrentFile = false;
+
+    // Core Functions
+    function switchView(id) {
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      lucide.createIcons(); window.scrollTo(0,0);
+    }
+
+    function resetHard() {
+    // 1. เคลียร์สถานะตัวแปร global
+    globalRow = null; 
+    loggedIn = false; 
+    mCount = 0; 
+    clearCurrentFile = false;
+
+    // 2. รีเซ็ตฟอร์มสมัครสมาชิกและหน้าจอ Dashboard
+    document.getElementById('regForm').reset();
+    document.getElementById('members-list').innerHTML = '';
+    document.querySelectorAll('.faculty-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('box-course').classList.add('hidden');
+
+    // 3. รีเซ็ตหน้า LOGIN (จุดที่เพิ่มใหม่)
+    document.getElementById('log-user').value = ""; // เคลียร์ Username
+    document.getElementById('log-phone').value = ""; // เคลียร์ช่องเบอร์โทรศัพท์ (ถ้ามี)
+    document.querySelectorAll('#login-pin-container .pin-input').forEach(i => i.value = ""); // เคลียร์ช่อง PIN ทั้ง 6 ช่อง
+    
+    // บังคับสลับโหมดกลับมาที่ 'pin' เป็นค่าเริ่มต้นเสมอ
+    toggleLoginMode('pin'); 
+    
+    const loginBtn = document.getElementById('btn-login-exec');
+    if(loginBtn) {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = 'LOGIN <i data-lucide="arrow-right"></i>'; // คืนค่าข้อความปุ่ม
+    }
+
+    // 4. สลับกลับไปหน้าแรก
+    switchView('view-welcome');
+    lucide.createIcons();
+}
+
+    function startApp() { switchView('view-form'); goStep(1); if(mCount===0) addMem(); }
+function openSupportModal() {
+    document.getElementById('support-modal').style.display = 'flex';
+    lucide.createIcons();
+}
+
+function closeSupportModal() {
+    document.getElementById('support-modal').style.display = 'none';
+}
+function goStep(s) {
+    const steps = [1, 2, 3];
+    const currentStepIndex = steps.find(i => !document.getElementById(`step-${i}`).classList.contains('hidden'));
+
+    if (s > currentStepIndex) {
+        const activeContainer = document.getElementById(`step-${currentStepIndex}`);
+        const inputs = activeContainer.querySelectorAll('input[required], select[required]');
+        
+        for (let input of inputs) {
+            if (!input.value.trim()) {
+                // เปลี่ยนจาก alert เป็น showError
+                showError("กรุณากรอกข้อมูลในส่วนนี้ให้ครบถ้วนก่อนไปขั้นตอนถัดไป");
+                input.focus();
+                input.classList.add('border-rose-500'); // เน้นขอบแดงที่ช่องนั้น
+                return;
+            } else {
+                input.classList.remove('border-rose-500');
+            }
+        }
+    }
+
+    steps.forEach(i => {
+        document.getElementById(`step-${i}`).classList.add('hidden');
+        const dot = document.getElementById(`st-${i}`);
+        if(dot) dot.classList.toggle('active', i <= s);
+    });
+    document.getElementById(`step-${s}`).classList.remove('hidden');
+    lucide.createIcons();
+}
+
+    // Step 1: Faculty/Course
+function selectFac(el, name) {
+  // 1. ไฮไลท์การเลือกคณะ (Graphic Feedback)
+  document.querySelectorAll('.faculty-card').forEach(c => c.classList.remove('selected')); 
+  el.classList.add('selected');
+  
+  // 2. เก็บค่าคณะลงใน Hidden Input
+  document.getElementById('in-fac').value = name;
+  
+  // 3. แสดงส่วนของคอร์ส (เผื่อผู้ใช้ปิด Modal แล้วอยากเปิดใหม่)
+  document.getElementById('box-course').classList.remove('hidden');
+  
+  // 4. ล้างค่าหลักสูตรเก่าที่เคยเลือกไว้ (Reset state)
+  document.getElementById('in-course').value = "";
+  document.getElementById('txt-course').innerText = "คลิกเพื่อเลือกหลักสูตร...";
+  document.getElementById('btn-next-1').classList.add('hidden');
+
+  // 5. สั่งให้หน้าต่างเลือกหลักสูตรเด้งขึ้นมาทันที (Auto-open Modal)
+  setTimeout(() => {
+    openModal();
+  }, 200); // หน่วงเวลาเล็กน้อย 0.2 วินาที เพื่อให้ผู้ใช้เห็นว่าเลือกคณะสำเร็จแล้ว
+}
+
+function openModal() {
+  const fac = document.getElementById('in-fac').value;
+  if(!fac) return; // ป้องกันกรณีไม่ได้เลือกคณะแล้วกดเปิด
+
+  const list = document.getElementById('modal-list'); 
+  list.innerHTML = '';
+  
+  // ดึงข้อมูลหลักสูตรจาก Object 'courses' ที่อาจารย์ประกาศไว้
+  courses[fac].forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'flex items-center gap-3 p-4 border rounded-2xl hover:bg-blue-50 cursor-pointer transition-all shadow-sm';
+    d.innerHTML = `<i data-lucide="${c.icon}" class="w-5 h-5 text-blue-900"></i><span class="text-xs font-bold text-slate-700">${c.text}</span>`;
+    
+    d.onclick = () => {
+      // เมื่อเลือกหลักสูตรใน Modal
+      document.getElementById('in-course').value = c.text;
+      document.getElementById('txt-course').innerText = c.text;
+      document.getElementById('txt-course').className = "text-sm text-slate-800 font-bold";
+      
+      // แสดงปุ่ม "ถัดไป" ทันทีหลังเลือกเสร็จ
+      document.getElementById('btn-next-1').classList.remove('hidden');
+      
+      updateAllYears(); // อัปเดตชั้นปีตามหลักสูตร
+      closeModal();
+      lucide.createIcons();
+    };
+    list.appendChild(d);
+  });
+  
+  document.getElementById('modal').style.display = 'flex'; 
+  lucide.createIcons();
+}
+     function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    // Email Suggestion Logic (กลับมาแล้ว!)
+    const emailIn = document.getElementById('emailInput'), emailSug = document.getElementById('emailSug');
+    emailIn.addEventListener('input', function() {
+        const val = this.value; if(!val || val.includes('@')) { emailSug.classList.add('hidden'); return; }
+        emailSug.innerHTML = ''; ["@cra.ac.th", "@pccms.ac.th", "@gmail.com"].forEach(d => {
+            const item = document.createElement('div'); item.className = 'p-3 hover:bg-blue-50 cursor-pointer border-b text-xs font-bold';
+            item.innerText = val + d;
+            item.onmousedown = (e) => { e.preventDefault(); emailIn.value = val + d; emailSug.classList.add('hidden'); };
+            emailSug.appendChild(item);
+        });
+        emailSug.classList.remove('hidden');
+    });
+
+    // Phone Format Logic (กลับมาแล้ว!)
+    document.getElementById('tel').oninput = function(e) {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,7})/);
+        e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2];
+    };
+
+   function addMem() {
+  if(mCount >= 3) return; 
+  mCount++;
+  const id = `m-card-${mCount}`;
+  const div = document.createElement('div');
+  div.id = id; 
+  div.className = 'p-6 bg-white rounded-3xl border border-slate-100 relative space-y-4 shadow-sm animate-fadeIn';
+  
+  div.innerHTML = `
+    ${mCount > 1 ? `<button type="button" onclick="removeMem('${id}')" class="absolute top-4 right-4 text-slate-300 hover:text-rose-500 active:scale-90 transition-all"><i data-lucide="x-circle" class="w-5 h-5"></i></button>` : ''}
+    <div class="flex items-center gap-2">
+      <i data-lucide="user" class="w-4 h-4 text-blue-900"></i>
+      <p class="text-[9px] font-bold text-blue-900 uppercase tracking-widest">Member ${mCount}</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <input type="text" name="m${mCount}_studentId" required maxlength="7" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="input-style pl-4" placeholder="รหัสนักศึกษา">
+      <select name="m${mCount}_prefix" required class="input-style pl-4"><option value="">คำนำหน้า</option><option>นาย</option><option>นางสาว</option></select>
+      <input type="text" name="m${mCount}_fname" required class="input-style pl-4" placeholder="ชื่อจริง">
+      <input type="text" name="m${mCount}_lname" required class="input-style pl-4" placeholder="นามสกุล">
+      <select name="m${mCount}_year" id="y-${mCount}" required class="input-style pl-4 md:col-span-2"><option value="">เลือกชั้นปี</option></select>
+    </div>`;
+    
+  document.getElementById('members-list').appendChild(div);
+  lucide.createIcons(); 
+  updateYearOptions(mCount);
+  
+  // เช็คจำนวนสมาชิกเพื่อซ่อน/แสดงปุ่มเพิ่ม
+  if(typeof checkMemberLimit === 'function') checkMemberLimit();
+}
+    function removeMem(id) { document.getElementById(id).remove(); mCount--; document.getElementById('btn-add-member').style.display = 'block'; }
+    
+    function updateYearOptions(n) {
+      const s = document.getElementById(`y-${n}`); if(!s) return;
+      const course = document.getElementById('in-course').value;
+      let max = course.includes("แพทยศาสตรบัณฑิต") ? 7 : (course.includes("ปริญญาตรีสาขาอื่น") ? 2 : 4);
+      s.innerHTML = '<option value="">เลือกชั้นปี</option>';
+      for(let i=1; i<=max; i++) s.add(new Option(`ชั้นปีที่ ${i}`, i));
+    }
+    function updateAllYears() { for(let i=1; i<=mCount; i++) updateYearOptions(i); }
+
+    // Step 3: Registration
+    function setPassType(type) {
+      currentPassType = type;
+      document.getElementById('use-phone-btn').className = type==='phone' ? "flex-1 py-2 bg-blue-900 text-white rounded-lg text-[10px] font-bold shadow-md" : "flex-1 py-2 text-slate-400 rounded-lg text-[10px] font-bold";
+      document.getElementById('use-custom-btn').className = type==='custom' ? "flex-1 py-2 bg-blue-900 text-white rounded-lg text-[10px] font-bold shadow-md" : "flex-1 py-2 text-slate-400 rounded-lg text-[10px] font-bold";
+      document.getElementById('custom-pass-area').classList.toggle('hidden', type==='phone');
+    }
+
+    // PIN Auto-focus Logic
+    document.querySelectorAll('.pin-input').forEach((input, idx, inputs) => {
+      input.addEventListener('input', (e) => { if (e.target.value.length === 1 && idx < inputs.length - 1) inputs[idx + 1].focus(); });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Backspace' && !e.target.value && idx > 0) inputs[idx - 1].focus(); });
+    });
+
+    // Form Submission
+document.getElementById('regForm').onsubmit = async function(e) {
+    e.preventDefault();
+    
+    // 1. ตรวจสอบความครบถ้วนของข้อมูลทั้งหมดในฟอร์ม
+    const inputs = this.querySelectorAll('input[required], select[required]');
+    for (let input of inputs) {
+        if (!input.value.trim()) {
+            alert("กรุณากรอกข้อมูลสมาชิกทีมให้ครบถ้วน");
+            input.focus();
+            return;
+        }
+    }
+
+    // 2. ตรวจสอบรหัสผ่าน (PIN 6 หลัก)
+    const phone = document.getElementById('tel').value;
+    const pass = currentPassType === 'phone' ? phone.replace(/-/g, "") : Array.from(document.querySelectorAll('#reg-pin-container .pin-input')).map(i => i.value).join('');
+    
+    if(pass.length < 6) {
+        alert("กรุณาระบุ PIN สำหรับเข้าสู่ระบบให้ครบ 6 หลัก");
+        return;
+    }
+
+    // เริ่มกระบวนการส่งข้อมูล
+    const btn = document.getElementById('btn-final');
+    btn.disabled = true; 
+    btn.innerText = "Processing...";
+    
+    const fd = new FormData(this);
+    
+    const data = {
+        faculty: fd.get('faculty'), 
+        course: fd.get('course'), 
+        teamName: fd.get('teamName'), 
+        email: fd.get('email'), 
+        phone: phone, 
+        username: fd.get('username'), 
+        password: pass,
+        m1: { studentId: fd.get('m1_studentId'), prefix: fd.get('m1_prefix'), fname: fd.get('m1_fname'), lname: fd.get('m1_lname'), year: fd.get('m1_year') },
+        m2: fd.get('m2_studentId') ? { studentId: fd.get('m2_studentId'), prefix: fd.get('m2_prefix'), fname: fd.get('m2_fname'), lname: fd.get('m2_lname'), year: fd.get('m2_year') } : null,
+        m3: fd.get('m3_studentId') ? { studentId: fd.get('m3_studentId'), prefix: fd.get('m3_prefix'), fname: fd.get('m3_fname'), lname: fd.get('m3_lname'), year: fd.get('m3_year') } : null
+    };
+
+    // ปรับจุดเรียกฟังก์ชัน (GAS run -> API fetch)
+    try {
+        const res = await callGAS({ action: 'processForm', data: data });
+        if(res.status === 'success'){
+            document.getElementById('res-team').innerText = res.teamName;
+            document.getElementById('res-fac').innerText = res.faculty + ' / ' + res.course;
+            document.getElementById('res-mems').innerHTML = res.members.map(m => `<li>• ${m}</li>`).join('');
+            switchView('view-success');
+        } else { 
+            alert(res.message); 
+            btn.disabled = false; 
+            btn.innerText = "ยืนยันสมัคร"; 
+        }
+    } catch(err) {
+        alert("การเชื่อมต่อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+        btn.disabled = false; btn.innerText = "ยืนยันสมัคร";
+    }
+};
+
+    // ฟังก์ชันสลับโหมดการแก้ไขวิดีโอลิงก์
+function toggleVideoEdit(isEditing) {
+    document.getElementById('video-present').classList.toggle('hidden', isEditing);
+    document.getElementById('video-new').classList.toggle('hidden', !isEditing);
+    if(isEditing) {
+        document.getElementById('f-m').value = document.getElementById('db-video-link').href;
+    }
+}
+
+function handleUserLogin(res) {
+    globalRow = res.rowIndex;
+    document.getElementById('db-teamName').innerText = res.teamName;
+    document.getElementById('db-facCourse').innerText = `${res.faculty} / ${res.course}`;
+    document.getElementById('db-members').innerHTML = res.members.map(m => `<div class='p-3 bg-white border rounded-2xl text-xs font-semibold flex items-center gap-3 shadow-sm'><i data-lucide="user" class="w-4 h-4 text-blue-600"></i><span>${m}</span></div>`).join('');
+    
+    if(res.fileUrl){ 
+        document.getElementById('db-file-link').href = res.fileUrl; 
+        toggleFileEdit(false); 
+    } else { 
+        toggleFileEdit(true); 
+    }
+
+    if(res.videoLink && res.videoLink !== ""){
+        document.getElementById('db-video-link').href = res.videoLink;
+        toggleVideoEdit(false);
+    } else {
+        toggleVideoEdit(true);
+    }
+
+    switchView('view-dashboard');
+    lucide.createIcons();
+}
+
+    function toggleFileEdit(isEditing) {
+      clearCurrentFile = isEditing;
+      document.getElementById('file-present').classList.toggle('hidden', isEditing);
+      document.getElementById('file-new').classList.toggle('hidden', !isEditing);
+      lucide.createIcons();
+    }
+function showError(msg) {
+    document.getElementById('error-message').innerText = msg;
+    document.getElementById('error-modal').style.display = 'flex';
+    lucide.createIcons();
+}
+let currentLoginMode = 'pin'; 
+
+function toggleLoginMode(mode) {
+    currentLoginMode = mode;
+    const isPin = mode === 'pin';
+    
+    document.getElementById('tab-pin').className = isPin ? "flex-1 py-2.5 bg-blue-900 text-white rounded-xl text-xs font-bold shadow-md transition-all" : "flex-1 py-2.5 text-slate-400 rounded-xl text-xs font-bold transition-all";
+    document.getElementById('tab-phone').className = !isPin ? "flex-1 py-2.5 bg-blue-900 text-white rounded-xl text-xs font-bold shadow-md transition-all" : "flex-1 py-2.5 text-slate-400 rounded-xl text-xs font-bold transition-all";
+    
+    document.getElementById('login-pin-area').classList.toggle('hidden', !isPin);
+    document.getElementById('login-phone-area').classList.toggle('hidden', isPin);
+    
+    lucide.createIcons();
+}
+
+async function executeLogin() {
+    const u = document.getElementById('log-user').value;
+    if(!u) return showError("กรุณาระบุ Username");
+
+    const btn = document.getElementById('btn-login-exec');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="flex items-center justify-center gap-1">Checking<span class="dot-animate">.</span><span class="dot-animate">.</span><span class="dot-animate">.</span></span>`;
+
+    let res;
+    try {
+        if (currentLoginMode === 'pin') {
+            const p = Array.from(document.querySelectorAll('#login-pin-container .pin-input')).map(i => i.value).join('');
+            if(p.length < 6) {
+                btn.disabled = false; btn.innerHTML = 'LOGIN <i data-lucide="arrow-right"></i>';
+                return showError("กรุณาระบุ PIN ให้ครบ 6 หลัก");
+            }
+            res = await callGAS({ action: 'loginUser', user: u, pass: p });
+        } else {
+            const ph = document.getElementById('log-phone').value;
+            if(!ph) {
+                btn.disabled = false; btn.innerHTML = 'LOGIN <i data-lucide="arrow-right"></i>';
+                return showError("กรุณาระบุเบอร์โทรศัพท์");
+            }
+            res = await callGAS({ action: 'forgotPasswordLogin', user: u, phone: ph });
+        }
+        loginCallback(res);
+    } catch(err) {
+        showError("การเชื่อมต่อผิดพลาด");
+        btn.disabled = false; btn.innerHTML = 'LOGIN <i data-lucide="arrow-right"></i>';
+    }
+}
+
+function loginCallback(res) {
+    const btn = document.getElementById('btn-login-exec');
+    if(res.status === 'success') {
+        handleUserLogin(res);
+    } else {
+        showError(res.message);
+        btn.disabled = false;
+        btn.innerHTML = 'LOGIN <i data-lucide="arrow-right"></i>';
+        lucide.createIcons();
+    }
+}
+function closeErrorModal() {
+    document.getElementById('error-modal').style.display = 'none';
+}
+   function showSuccessUpdate() { document.getElementById('success-update-modal').style.display = 'flex'; }
+function closeSuccessUpdateModal() { document.getElementById('success-update-modal').style.display = 'none'; }
+
+async function doSubmitFile() {
+  const fl = document.getElementById('f-l').files[0];
+  const vd = document.getElementById('f-m').value;
+  const btn = document.getElementById('btn-save');
+  
+  btn.disabled = true; 
+  btn.innerHTML = `<span class="flex items-center justify-center gap-1">Saving<span class="dot-animate">.</span><span class="dot-animate">.</span><span class="dot-animate">.</span></span>`;
+
+  let fileObj = null;
+  if(fl){
+    const base64 = await new Promise((resolve) => {
+        const rd = new FileReader();
+        rd.onload = (e) => resolve(e.target.result.split(',')[1]);
+        rd.readAsDataURL(fl);
+    });
+    fileObj = {name: fl.name, mimeType: fl.type, data: base64};
+  }
+
+  try {
+      const res = await callGAS({ 
+          action: 'updateSubmission', 
+          rowIndex: globalRow, 
+          fileObj: fileObj, 
+          videoLink: vd, 
+          clearFile: clearCurrentFile 
+      });
+      showSuccessUpdate();
+      handleUserLogin(res);
+      btn.disabled = false;
+      btn.innerText = "บันทึกข้อมูลและส่ง";
+  } catch(err) {
+      alert("บันทึกไม่สำเร็จ กรุณาลองใหม่");
+      btn.disabled = false; btn.innerText = "บันทึกข้อมูลและส่ง";
+  }
+}
+
+    function openDetailModal() { document.getElementById('detail-modal').style.display = 'flex'; showContent(1); lucide.createIcons(); }
+    function closeDetailModal() { document.getElementById('detail-modal').style.display = 'none'; }
+    function showContent(id) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`tab-${id}`).classList.add('active');
+      const c = contestDetails[id];
+      document.getElementById('content-area').innerHTML = `<h4>${c.title}</h4><div class='animate-fadeIn'>${c.body}</div>`;
+      lucide.createIcons();
+    }
+
+    document.getElementById('emailInput').addEventListener('input', function() {
+        const val = this.value;
+        const sugBox = document.getElementById('emailSug');
+        if(!val || val.includes('@')) { sugBox.classList.add('hidden'); return; }
+        sugBox.innerHTML = ''; 
+        const domains = ["@cra.ac.th", "@pccms.ac.th", "@gmail.com", "@hotmail.com"];
+        domains.forEach(d => {
+            const item = document.createElement('div');
+            item.className = 'p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 text-xs font-bold text-slate-600';
+            item.innerText = val + d;
+            item.onmousedown = (e) => { 
+                e.preventDefault(); 
+                this.value = val + d; 
+                sugBox.classList.add('hidden'); 
+            };
+            sugBox.appendChild(item);
+        });
+        sugBox.classList.remove('hidden');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.id !== 'emailInput') {
+            document.getElementById('emailSug').classList.add('hidden');
+        }
+    });
+
+  </script>
+</body>
+</html>
