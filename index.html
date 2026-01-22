@@ -1091,18 +1091,16 @@ function handleUserLogin(res) {
     document.getElementById('log-user').value = name;
     closeErrorModal();
 }
-// 1. ฟังก์ชันสำหรับกดเลือกชื่อที่แนะนำ
+// ฟังก์ชันสำหรับจิ้มที่ชื่อแนะนำแล้วเอาไปใส่ในช่อง Username ทันที
 function applySuggestion(name) {
-    document.getElementById('log-user').value = name; // เอาชื่อไปใส่ในช่อง Username
-    closeErrorModal(); // ปิดหน้าต่าง Error
+    document.getElementById('log-user').value = name;
+    closeErrorModal();
 }
 
-// 2. ฟังก์ชันแสดง Error (ปรับให้สั้นลงและรองรับปุ่มจาก Server)
 function showError(msg) {
     const errorMsgEl = document.getElementById('error-message');
-    // ใช้ innerHTML เพื่อให้ปุ่มจาก GS แสดงผลและทำงานได้
+    // ต้องใช้ innerHTML เพื่อให้ปุ่มจาก GS แสดงผลเป็นปุ่มจริงๆ
     errorMsgEl.innerHTML = msg; 
-    
     document.getElementById('error-modal').style.display = 'flex';
     lucide.createIcons();
 }
