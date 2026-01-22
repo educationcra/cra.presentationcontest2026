@@ -1087,19 +1087,12 @@ function handleUserLogin(res) {
       document.getElementById('file-new').classList.toggle('hidden', !isEditing);
       lucide.createIcons();
     }
-    function applySuggestion(name) {
-    document.getElementById('log-user').value = name;
-    closeErrorModal();
-}
-// ฟังก์ชันสำหรับจิ้มที่ชื่อแนะนำแล้วเอาไปใส่ในช่อง Username ทันที
 function applySuggestion(name) {
     document.getElementById('log-user').value = name;
     closeErrorModal();
 }
-
 function showError(msg) {
     const errorMsgEl = document.getElementById('error-message');
-    // ต้องใช้ innerHTML เพื่อให้ปุ่มจาก GS แสดงผลเป็นปุ่มจริงๆ
     errorMsgEl.innerHTML = msg; 
     document.getElementById('error-modal').style.display = 'flex';
     lucide.createIcons();
