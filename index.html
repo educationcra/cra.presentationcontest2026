@@ -1088,7 +1088,8 @@ function handleUserLogin(res) {
       lucide.createIcons();
     }
 function showError(msg) {
-    document.getElementById('error-message').innerText = msg;
+    // เปลี่ยนจาก .innerText เป็น .innerHTML เพื่อให้แสดงผลตัวหนาและสีที่เราส่งมาจาก GAS ได้
+    document.getElementById('error-message').innerHTML = msg; 
     document.getElementById('error-modal').style.display = 'flex';
     lucide.createIcons();
 }
