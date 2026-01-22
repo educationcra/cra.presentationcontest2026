@@ -1088,8 +1088,16 @@ function handleUserLogin(res) {
       lucide.createIcons();
     }
 function showError(msg) {
-    // เปลี่ยนจาก .innerText เป็น .innerHTML เพื่อให้แสดงผลตัวหนาและสีที่เราส่งมาจาก GAS ได้
-    document.getElementById('error-message').innerHTML = msg; 
+    const errorMsgEl = document.getElementById('error-message');
+    errorMsgEl.innerHTML = msg; 
+    const suggestionBtn = errorMsgEl.querySelector('.suggestion-link');
+    if (suggestionBtn) {
+        suggestionBtn.onclick = function() {
+            document.getElementById('log-user').value = this.getAttribute('data-name');
+            closeErrorModal();
+        };
+    }
+
     document.getElementById('error-modal').style.display = 'flex';
     lucide.createIcons();
 }
